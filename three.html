@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+            body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <script src="lib/three.js"></script>
+        <script src="lib/three-stl-loader.js"></script>
+		<script>
+
+            var scene;
+            var camera;
+            var renderer;
+            var loader;
+            var lego;
+
+            const possibleColours = [0xf4f4f4,0x8a928d,0xffd67f,0xf2705e,0xb0a06f,0xadd9a8,0xf6a9bb,0xabd9ff,0xd86d2c,0xbb805a,0xb40000,0xd05098,0x1e5aa8,0xfac80a,0x543324,0x1b2a34,0x545955,0x00852b,0x7fc475,0xfdc383,0x58ab41,0x91501c,0xafbed6,0x97cbd9,0xf9b7a5,0xf06d61,0x7396c8,0xbcb4a5,0x671fa1,0xf58624,0xd67923,0x069d9f,0x56472f,0x26469a,0x4861ac,0xb7d425,0x00aaa4,0x9cd6cc,0xa5ca18,0xdeea92,0xf89a39,0xee5434,0x901f76,0xf9a777,0xad6140,0xef5828,0xcddd34,0x70819a,0x75657d,0xf48147,0x897d62,0x19325a,0x00451a,0x708e7c,0x88605e,0x720012,0xdd982e,0x009ece,0xffcf0b,0xfcac00,0x5f3109,0xec441d,0x969696,0x1c58a7,0x0e3e9a,0x312b87,0x8a12a8,0x646464,0xc8c8c8,0xa47624,0x468a5f,0x3fb6a9,0x9dc3f7,0x476fb6,0x872b17,0x7b5d41,0x8e5597,0x564e9d,0x9195ca,0xd3359d,0xff9ecd,0xf17880,0xf3c988,0xfaa964,0xffec6c,0x77c9d8,0x60ba76,0x441a91,0x3e95b6,0xffc995,0x372100,0xaa7d55,0x469bc3,0x68c3e2,0xd3f2ea,0xa06eb9,0xcda4de,0xe2f99a,0x77774e,0xeeeeee,0xB82700,0xaddded,0x77b7cc,0xfaf15d,0xd06d4f,0x73b464,0xfaf15b,0x1414,0xbbb29e,0xfd8ecf,0x9c95c7,0xd0e5ff,0xfff65c,0xf18ebb,0xe18d0a,0xc9e788,0xacd4de,0xeca3c9,0xfcb76d,0xfbe890,0x8d73b3,0xe0d0e5,0xafd246,0xdeac66,0xa0a0a0,0x764d3b,0x5b7590,0x817590,0x83724f,0x484d48,0x0a1327,0x989b99,0x60564c,0x945148,0xab673a,0x737271,0xf6f2df,0xd60026,0x0059a3,0x008e3c,0x57392c,0xac8247,0x6a7944,0xadadad,0xaa7f2e,0x8c8c8c,0x3e3c39,0xcecece,0xdfc176,0x767676,0xe9e9e9,0xe5dfd3,0xd5dc8a,0xf5f3d7];
+
+            const cameraDistance = 35;
+
+            function RUN(legoID){
+
+                const chosenColour = possibleColours[Math.floor(Math.random() * possibleColours.length)];
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFShadowMap;
+
+                // Can use this to set the skybox colour as a complete background. Might be useful to greenscreen if that helps the program to recognise the shape
+                // renderer.setClearColor(0x00ff00);
+                // Could also put a texture here such as a picture or a video to make it look more natural
+                
+                document.body.appendChild( renderer.domElement );
+
+                var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
+
+                var pointLight = new THREE.PointLight(0xffffff, 0.7, 1000);
+                pointLight.position.set(0,0,cameraDistance);
+                scene.add(pointLight);
+
+                loader = new THREE.STLLoader();
+                loader.load( `https://printabrick.org/files/models/${legoID}.stl`, function ( geometry ) {
+                    var material = new THREE.MeshLambertMaterial( { color: chosenColour } );
+                    lego = new THREE.Mesh( geometry, material );
+                    lego.receiveShadow = true;
+                    lego.castShadow = true;
+                    randomize();
+                    scene.add( lego );
+                });
+
+                camera.position.z = cameraDistance;
+
+                animate();
+            }  
+
+            function animate() {
+                requestAnimationFrame( animate );
+                // lego.rotation.x += 0.01;
+                // lego.rotation.y += 0.02;
+                renderer.render( scene, camera );
+            }
+
+            function randomize(){
+                lego.position.x = Math.random() * 10;
+                lego.position.y = Math.random() * 10;
+                lego.position.z = Math.random() * 10;
+
+                lego.rotation.x = Math.random() * 2;
+                lego.rotation.y = Math.random() * 2;
+                lego.rotation.z = Math.random() * 2;
+            }
+
+		</script>
+	</body>
+</html>
